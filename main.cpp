@@ -113,7 +113,12 @@ static void _render_rectangle() {
 static void GLRender() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    GLfloat green = (GLfloat)(sin(glfwGetTime()) / 2) + 0.5f;
+    GLuint greenLoc = glGetUniformLocation(SingleTriangleProgram, "green");
+
     glUseProgram(SingleTriangleProgram);
+    glUniform1f(greenLoc, green);
     
     if (drawTrianle) {
         _render_single_triangle();
