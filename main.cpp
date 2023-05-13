@@ -31,21 +31,44 @@ void onSizeChanged(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+extern GLuint SingleTriangleProgram, UniformPercentage;
+
 void onKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE) {
+    switch (key) {
+    case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(window, GL_TRUE);
-    } else if (key == GLFW_KEY_T) {
+        break;
+    case GLFW_KEY_T:
         drawTrianle = true;
-    } else if (key == GLFW_KEY_R) {
+        break;
+    case GLFW_KEY_R:
         drawTrianle = false;
-    } else {
-        drawTrianle = true;
+        break;
+    case GLFW_KEY_UP: {
+            GLfloat percent;
+            glGetUniformfv(SingleTriangleProgram, UniformPercentage, &percent);
+            GLfloat v = percent + 0.01f;
+            if (v - 1.0f > 0.0001f) {
+                v = 1.0f;
+            }
+            glUniform1f(UniformPercentage, v);
+        }
+        break;
+    case GLFW_KEY_DOWN: {
+            GLfloat percent;
+            glGetUniformfv(SingleTriangleProgram, UniformPercentage, &percent);
+            GLfloat v = percent - 0.01;
+            if (v < 0.0001f) {
+                v = 0.0f;
+            }
+            glUniform1f(UniformPercentage, v);
+        }
     }
 }
 
-
 GLuint SingleTriangle, SingleTriangleBuffer, SingleTriangleProgram;
 GLuint Rectangle, RectangleBuffer, ReactangleIndicesBuffer, RectangleProgram;
+GLuint UniformPercentage;
 
 static void _texture_wood();
 static void _texture_face();
@@ -58,7 +81,6 @@ static void GLInit() {
     SingleTriangleProgram = LoadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\SingleTriangle.vert", "C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\SingleTriangle.frag", error);
     if (SingleTriangleProgram == 0) {
         std::cout << *error << std::endl;
-        // abort();
         return;
     }
     _texture_wood();
@@ -127,6 +149,8 @@ static void GLInit() {
 
     glUniform1i(glGetUniformLocation(SingleTriangleProgram, "wood"), 0);
     glUniform1i(glGetUniformLocation(SingleTriangleProgram, "face"), 1);
+    UniformPercentage = glGetUniformLocation(SingleTriangleProgram, "percentage");
+    glUniform1f(UniformPercentage, 0.2);
 }
 
 static void _render_single_triangle() {

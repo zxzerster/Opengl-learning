@@ -10,6 +10,8 @@ uniform float green;
 uniform sampler2D wood;
 uniform sampler2D face;
 
+uniform float percentage;
+
 void main() {
-    FragColor = mix(texture(wood, TexCoord), texture(face, TexCoord), 0.2) * vec4(Color, 1.0);
+    FragColor = mix(texture(wood, TexCoord), texture(face, TexCoord), percentage) * vec4(Color, 1.0);
 }
