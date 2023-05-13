@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCES
     main.cpp
     shader/shader_util.cpp
+    textures/stb_image.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

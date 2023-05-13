@@ -1,9 +1,15 @@
 #version 330 core
 
+in vec3 Color;
+in vec2 TexCoord;
+
 out vec4 FragColor;
 
 uniform float green;
 
+uniform sampler2D wood;
+uniform sampler2D face;
+
 void main() {
-    FragColor = vec4(0.0f, green, 0.0f, 1.0f);
+    FragColor = mix(texture(wood, TexCoord), texture(face, TexCoord), 0.2) * vec4(Color, 1.0);
 }
