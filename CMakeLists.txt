@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCES
     main.cpp
     shader/shader_util.cpp
+    shader/shader_util.h
     textures/stb_image.cpp
 )
 
@@ -16,3 +17,5 @@ find_package(GLEW REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE GLEW::GLEW)
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)

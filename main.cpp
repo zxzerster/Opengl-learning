@@ -1,263 +1,227 @@
-#include "gl/glew.h"
-#include "glfw/glfw3.h"
-#include <cstdlib>
-#include <string>
-#include <iostream>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-#include "shader/shader_util.h"
 #include "textures/stb_image.h"
 
-// OpenGL version
-static const GLuint VERSION_MAJOR = 3;
-static const GLuint VERSION_MINOR = 3;
+#include <glm/vec3.hpp> // glm::vec3
+#include <glm/vec4.hpp> // glm::vec4
+#include <glm/mat4x4.hpp> // glm::mat4
+#include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
+#include <glm/ext/matrix_clip_space.hpp> // glm::perspective
+#include <glm/ext/scalar_constants.hpp> // glm::pi
+#include <glm/gtc/type_ptr.hpp>
 
-// Window properties
-static const std::string WINDOW_TITLE = "OpenGL Learning";
+#include <iostream>
+#include <memory>
 
-static const GLuint WINDOW_WIDTH = 1440;
-static const GLuint WINDOW_HEIGHT = 900;
+#include "shader/shader_util.h"
 
-// OpenGL buffer objects
-static GLuint VAO = 0, VBO = 0, EBO = 0;
+#define WINDOW_WIDTH 1440
+#define WINDOW_HEIGHT 900
 
-// Textures
-GLuint wood_tex = 0, face_tex = 0;
+GLuint CUBE_VAO = 0, CUBE_VBO = 0, CUBE_EBO = 0, WOOD_TEXTURE = 0, FACE_TEXTURE = 0;
+GLuint cube_program = 0;
 
-static GLfloat color[] = {1.0f, 1.0f, 1.0f};
+const GLfloat cubeVertices[] = {
+#if 0
+    -0.5f, -0.5f, -0.5f, // Vertex 0
+     0.5f, -0.5f, -0.5f, // Vertex 1
+     0.5f,  0.5f, -0.5f, // Vertex 2
+    -0.5f,  0.5f, -0.5f, // Vertex 3
+    -0.5f, -0.5f,  0.5f, // Vertex 4
+     0.5f, -0.5f,  0.5f, // Vertex 5
+     0.5f,  0.5f,  0.5f, // Vertex 6
+    -0.5f,  0.5f,  0.5f  // Vertex 7
+#endif
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, 0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, 0.0f, 1.0f
+};
 
-bool drawTrianle = true;
+const GLuint cubeVertexIndicies[] = {
+    0, 1, 2, 2, 3, 0, // Front face
+    1, 5, 6, 6, 2, 1, // Right face
+    4, 0, 3, 3, 7, 4, // Left face
+    5, 4, 7, 7, 6, 5, // Back face
+    3, 2, 6, 6, 7, 3, // Top face
+    0, 4, 5, 5, 1, 0  // Bottom face
+};
 
-void onSizeChanged(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-extern GLuint SingleTriangleProgram, UniformPercentage;
-
-void onKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    switch (key) {
-    case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(window, GL_TRUE);
-        break;
-    case GLFW_KEY_T:
-        drawTrianle = true;
-        break;
-    case GLFW_KEY_R:
-        drawTrianle = false;
-        break;
-    case GLFW_KEY_UP: {
-            GLfloat percent;
-            glGetUniformfv(SingleTriangleProgram, UniformPercentage, &percent);
-            GLfloat v = percent + 0.01f;
-            if (v - 1.0f > 0.0001f) {
-                v = 1.0f;
-            }
-            glUniform1f(UniformPercentage, v);
-        }
-        break;
-    case GLFW_KEY_DOWN: {
-            GLfloat percent;
-            glGetUniformfv(SingleTriangleProgram, UniformPercentage, &percent);
-            GLfloat v = percent - 0.01;
-            if (v < 0.0001f) {
-                v = 0.0f;
-            }
-            glUniform1f(UniformPercentage, v);
-        }
-    }
-}
-
-GLuint SingleTriangle, SingleTriangleBuffer, SingleTriangleProgram;
-GLuint Rectangle, RectangleBuffer, ReactangleIndicesBuffer, RectangleProgram;
-GLuint UniformPercentage;
-
-static void _texture_wood();
-static void _texture_face();
-
-static void GLInit() {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+void GLInit() {
     ErrorString error;
-    SingleTriangleProgram = LoadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\SingleTriangle.vert", "C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\SingleTriangle.frag", error);
-    if (SingleTriangleProgram == 0) {
-        std::cout << *error << std::endl;
-        return;
-    }
-    _texture_wood();
-    _texture_face();
 
-// Single Triangle VAO
-    glGenVertexArrays(1, &SingleTriangle);
-    glGenBuffers(1, &SingleTriangleBuffer);
-
-    glBindVertexArray(SingleTriangle);
-    {        
-        glBindBuffer(GL_ARRAY_BUFFER, SingleTriangleBuffer);
+// Vertex attributes
+    glGenVertexArrays(1, &CUBE_VAO);
+    glBindVertexArray(CUBE_VAO);
+    {
+        glGenBuffers(1, &CUBE_VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, CUBE_VBO);
         {
-            GLfloat vertices[] = {
-                /*pos*/             /*color*/         /*tex*/
-                -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // left
-                 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-                 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f
-            };
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (void*)0);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT)));
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (void*)(6 * sizeof(GL_FLOAT)));
+            glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void *)0);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
-            glEnableVertexAttribArray(2);
         }
     }
     glBindVertexArray(0);
-
-// Rectangle VAO
-    glGenVertexArrays(1, &Rectangle);
-    glGenBuffers(1, &RectangleBuffer);
-    glGenBuffers(1, &ReactangleIndicesBuffer);
-
-    glBindVertexArray(Rectangle);
+// Texture
+    glGenTextures(1, &WOOD_TEXTURE);
+    glBindTexture(GL_TEXTURE_2D, WOOD_TEXTURE);
     {
-        GLfloat rectangleVertices[] = {
-             /*pos*/            /*color*/         /*tex*/
-             0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // top right
-             0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom left
-            -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f   // top left 
-        };
-        GLuint indices[] = {
-            0, 1, 3,
-            1, 2, 3
-        };
-
-        glBindBuffer(GL_ARRAY_BUFFER, RectangleBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleVertices), rectangleVertices, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (void*)0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT)));
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (void*)(6 * sizeof(GL_FLOAT)));
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ReactangleIndicesBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        int width, height, nChannels;
+        stbi_uc* cubeTexture = stbi_load("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\container.jpg", &width, &height, &nChannels, 0);
+        if (!cubeTexture) {
+            abort();
+        }
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, cubeTexture);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
-    glBindVertexArray(0);
 
-    glUseProgram(SingleTriangleProgram);
+    glGenTextures(1, &FACE_TEXTURE);
+    glBindTexture(GL_TEXTURE_2D, FACE_TEXTURE);
+    {
+        int width, height, nChannels;
+        stbi_uc* faceTexture = stbi_load("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\awesomeface.png", &width, &height, &nChannels, 0);
+        if (!faceTexture) {
+            abort();
+        }
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, faceTexture);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
 
-    glUniform1i(glGetUniformLocation(SingleTriangleProgram, "wood"), 0);
-    glUniform1i(glGetUniformLocation(SingleTriangleProgram, "face"), 1);
-    UniformPercentage = glGetUniformLocation(SingleTriangleProgram, "percentage");
-    glUniform1f(UniformPercentage, 0.2);
-}
-
-static void _render_single_triangle() {
-    glBindVertexArray(SingleTriangle);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-}
-
-static void _render_rectangle() {
-    glBindVertexArray(Rectangle);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}
-
-static void _texture_wood() {
-    int width, height, nrChannels;
-    glGenTextures(1, &wood_tex);
-    
-    unsigned char* wood = stbi_load("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\container.jpg", &width, &height, &nrChannels, 0);
-    if (!wood) {
-        std::cout << "Failed to load container image" << std::endl;
+// Shader program
+    cube_program = LoadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.vert", "C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.frag", error);
+    if (cube_program == 0) {
+        std::cout << error << std::endl;
         return;
     }
+
+    glUseProgram(cube_program);
+
+// model, view, projection
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    // transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.04f));
+    glUniformMatrix4fv(glGetUniformLocation(cube_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    glUniformMatrix4fv(glGetUniformLocation(cube_program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), (float)1440 / (float)900, 0.1f, 100.0f);
+    glUniformMatrix4fv(glGetUniformLocation(cube_program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+    glEnable(GL_DEPTH_TEST);
+}
+
+void GLRendering() {
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, wood_tex);
+    glBindTexture(GL_TEXTURE_2D, WOOD_TEXTURE);
+    glUniform1i(glGetUniformLocation(cube_program, "wood"), 0);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, wood);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(wood);
-}
-
-static void _texture_face() {
-    int width, height, nrChannels;
-    glGenTextures(1, &face_tex);
-
-    unsigned char* face = stbi_load("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\awesomeface.png", &width, &height, &nrChannels, 0);
-    if (!face) {
-        std::cout << "Failed to load awesomeface image" << std::endl;
-        return;
-    }
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, face_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, face);
+    glBindTexture(GL_TEXTURE_2D, FACE_TEXTURE);
+    glUniform1i(glGetUniformLocation(cube_program, "face"), 1);
 
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(face);
-}
-
-static void GLRender() {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    // glBindTexture(GL_TEXTURE_2D, wood_tex);
-
-    GLfloat green = (GLfloat)(sin(glfwGetTime()) / 2) + 0.5f;
-    GLuint greenLoc = glGetUniformLocation(SingleTriangleProgram, "green");
-
-    glUniform1f(greenLoc, green);
-    
-    if (drawTrianle) {
-        _render_single_triangle();
-    } else {
-        _render_rectangle();
-    }    
+    glBindVertexArray(CUBE_VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 int main(int argc, char* argv[]) {
-    if (glfwInit() == GL_FALSE) {
+    if (glfwInit() != GLFW_TRUE) {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
         return EXIT_FAILURE;
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, VERSION_MAJOR);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, VERSION_MINOR);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // set OpenGL version 3.3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // use core profile
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // make MacOS happy
+#endif
 
-    auto window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, &WINDOW_TITLE[0], nullptr, nullptr);
-    if (window == nullptr) {
+    GLFWwindow * pWindow = glfwCreateWindow(1440, 900, "LearnOpenGL", nullptr, nullptr);
+    if (!pWindow) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return EXIT_FAILURE;
     }
-
-    glfwSetFramebufferSizeCallback(window, onSizeChanged);
-    glfwSetKeyCallback(window, onKeyInput);
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(pWindow);
 
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
         glfwTerminate();
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
+
+    glfwSetKeyCallback(pWindow, [](GLFWwindow* window, int key, int scancode, int action, int mode) {
+        if (key == GLFW_KEY_ESCAPE) {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+    });
+    glfwSetWindowSizeCallback(pWindow, [](GLFWwindow* window, int width, int height) {
+        glViewport(0, 0, width, height);
+    });
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     GLInit();
-    while (glfwWindowShouldClose(window) == GL_FALSE) {
-        GLRender();
-
-        glfwSwapBuffers(window);
+    while (!glfwWindowShouldClose(pWindow)) {
         glfwPollEvents();
-    }
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // set color
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color buffer
 
-    glfwTerminate();
-    return 0;
+        GLRendering();
+
+        glfwSwapBuffers(pWindow);
+
+        std::shared_ptr<unsigned char> d(new unsigned char[1024], [](unsigned char* ptr) { delete[] ptr; });
+        std::shared_ptr<const GLvoid> data;
+        
+        data = std::shared_ptr<GLvoid>(malloc(1024), [](GLvoid* ptr) { free(ptr ); });
+    }
 }
