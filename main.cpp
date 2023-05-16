@@ -143,7 +143,6 @@ void GLInit() {
 // model, view, projection
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-    // transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.04f));
     glUniformMatrix4fv(glGetUniformLocation(cube_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
     glm::mat4 view = glm::mat4(1.0f);
@@ -158,6 +157,10 @@ void GLInit() {
 }
 
 void GLRendering() {
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    glUniformMatrix4fv(glGetUniformLocation(cube_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, WOOD_TEXTURE);
     glUniform1i(glGetUniformLocation(cube_program, "wood"), 0);
