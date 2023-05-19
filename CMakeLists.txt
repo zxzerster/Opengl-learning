@@ -10,6 +10,8 @@ set(SOURCES
     shader/shader_util.cpp
     shader/shader_util.h
     textures/stb_image.cpp
+    Cube.cpp
+    Cube.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
