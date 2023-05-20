@@ -27,52 +27,120 @@ GLuint cube_program = 0;
 Cube cube;
 
 const GLfloat cubeVertices[] = {
-#if 0
-    -0.5f, -0.5f, -0.5f, // Vertex 0
-     0.5f, -0.5f, -0.5f, // Vertex 1
-     0.5f,  0.5f, -0.5f, // Vertex 2
-    -0.5f,  0.5f, -0.5f, // Vertex 3
-    -0.5f, -0.5f,  0.5f, // Vertex 4
-     0.5f, -0.5f,  0.5f, // Vertex 5
-     0.5f,  0.5f,  0.5f, // Vertex 6
-    -0.5f,  0.5f,  0.5f  // Vertex 7
-#endif
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 0.0f, 1.0f
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+    -0.5f,  0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f, -0.5f,
+};
+
+const GLfloat texCoords[] = {
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+};
+
+const GLfloat colors[] = {
+    0.0f, 0.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    1.0f, 1.0f, 0.8f,
+    1.0f, 1.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    0.0f, 0.0f, 0.8f,
+    0.0f, 0.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    1.0f, 1.0f, 0.8f,
+    1.0f, 1.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    0.0f, 0.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    1.0f, 1.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    0.0f, 0.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    1.0f, 1.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    0.0f, 0.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    1.0f, 1.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    0.0f, 0.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
+    1.0f, 1.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    1.0f, 0.0f, 0.8f,
+    0.0f, 0.0f, 0.8f,
+    0.0f, 1.0f, 0.8f,
 };
 
 const GLuint cubeVertexIndicies[] = {
@@ -137,7 +205,7 @@ void GLInit() {
     }
 
 // Shader program
-    cube_program = LoadShaders("D:\\Dev\\Opengl-learning\\shader\\glsl\\cube.vert", "D:\\Dev\\Opengl-learning\\shader\\glsl\\cube.frag", error);
+    cube_program = LoadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\Opengl\\Opengl-learning\\shader\\glsl\\cube.vert", "C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.frag", error);
     if (cube_program == 0) {
         std::cout << error << std::endl;
         return;
@@ -170,22 +238,39 @@ void GLInit() {
     glUniform1i(glGetUniformLocation(cube_program, "face"), 1);
 
     glBindVertexArray(CUBE_VAO);
-#else
-    cube.loadVertexAttribute(0, const_cast<GLfloat *>(cubeVertices), sizeof(cubeVertices), 3);
-    cube.loadShaders("D:\\Dev\\Opengl-learning\\shader\\glsl\\cube.vert", "D:\\Dev\\Opengl-learning\\shader\\glsl\\cube.frag");
-    cube.loadTexture("D:\\Dev\\Opengl-learning\\textures\\container.jpg");
-    cube.loadTexture("D:\\Dev\\Opengl-learning\\textures\\awesomeface.png");
 #endif
+    cube.loadVertexAttribute(0, const_cast<GLfloat *>(cubeVertices), sizeof(cubeVertices), 3);
+    cube.loadVertexAttribute(1, const_cast<GLfloat *>(colors), sizeof(colors), 3);
+    cube.loadVertexAttribute(2, const_cast<GLfloat *>(texCoords), sizeof(texCoords), 2);
+    cube.loadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.vert","C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.frag");
+
+    cube.loadTexture("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\container.jpg");
+    // cube.loadTexture("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\awesomeface.png");
+
+    cube.connectTexture(GL_TEXTURE0, "wood");
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    cube.setUniform("model", model);
+
+    glm::mat4 view = glm::mat4(1.0f);
+    // view = glm::scale(view, glm::vec3(0.5f, 0.5f, 0.5f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    cube.setUniform("view", view);
+
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), (float)1440 / (float)900, 0.1f, 100.0f);
+    cube.setUniform("projection", projection);
+
+    cube.enableDepthTest();
 }
 
 void GLRendering() {
-#if 0
+
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-    glUniformMatrix4fv(glGetUniformLocation(cube_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    cube.setUniform("model", model);
 
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-#endif
     cube.Draw(sizeof(cubeVertices));
 }
 

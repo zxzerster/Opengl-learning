@@ -2,7 +2,15 @@
 #include "shader/shader_util.h"
 #include "textures/stb_image.h"
 
+#include <type_traits>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/ext.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/matrix.hpp>
 
 Cube::Cube() {
     TexMap[GL_TEXTURE0] = 0;
@@ -11,8 +19,6 @@ Cube::Cube() {
     TexMap[GL_TEXTURE3] = 3;
     TexMap[GL_TEXTURE4] = 4;
     TexMap[GL_TEXTURE5] = 5;
-
-    glGenVertexArrays(1, &VAO);
 }
 
 Cube::~Cube() {
@@ -23,16 +29,17 @@ void Cube::loadVertexAttribute(unsigned int location, GLfloat* vertices, unsigne
 {
     if (!vertices || size < 0) return;
     if (size % components != 0) return;
+    if (VAO == 0)
+        glGenVertexArrays(1, &VAO);
 
-    GLuint EBO;
-    glGenBuffers(1, &EBO);
-    EBOs.push_back(EBO);
-
+    GLuint VBO;
+    glGenBuffers(1, &VBO);
+    VBOs.push_back(VBO);
     glBindVertexArray(VAO);
     {
-        glBindBuffer(GL_ARRAY_BUFFER, EBOs[EBOs.size() - 1]);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-        glVertexAttribPointer(location, components, GL_FLOAT, GL_FALSE, components * sizeof(float), (void*)0);
+        glVertexAttribPointer(location, components, GL_FLOAT, GL_FALSE, components * sizeof(GLfloat), (void*)0);
         glEnableVertexAttribArray(location);
     }
     glBindVertexArray(0);
@@ -46,24 +53,23 @@ void Cube::loadShaders(const std::string& vertexPath, const std::string& fragmen
         std::cout << error << std::endl;
         return;
     }
+
+    glUseProgram(Shader_Program);
 }
 
 void Cube::loadTexture(const std::string& texturePath) {
     if (texturePath.empty()) return;
-
     int width = 0, height = 0, nChannels = 0;
     stbi_uc * data = stbi_load(texturePath.c_str(), &width, &height, &nChannels, 0);
     if (!data) {
-        std::cout << "load texture failed" << std::endl;
         return;
     }
-
     GLuint texture;
     glGenTextures(1, &texture);
     TEXTUREs.push_back(texture);
     {
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 }
@@ -75,10 +81,8 @@ void Cube::connectTexture(GLenum tex, std::string uniform) {
 }
 
 void Cube::Draw(GLuint points) {
-    glUseProgram(Shader_Program);
     glBindVertexArray(VAO);
-    connectTexture(GL_TEXTURE0, "wood");
-    connectTexture(GL_TEXTURE1, "face");
+    // connectTexture(GL_TEXTURE0, "wood");
 
     glDrawArrays(GL_TRIANGLES, 0, points);
 }
