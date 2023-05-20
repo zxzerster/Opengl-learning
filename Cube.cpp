@@ -4,13 +4,6 @@
 
 #include <type_traits>
 #include <iostream>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/ext.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/matrix.hpp>
 
 Cube::Cube() {
     TexMap[GL_TEXTURE0] = 0;
@@ -82,7 +75,6 @@ void Cube::connectTexture(GLenum tex, std::string uniform) {
 
 void Cube::Draw(GLuint points) {
     glBindVertexArray(VAO);
-    // connectTexture(GL_TEXTURE0, "wood");
 
     glDrawArrays(GL_TRIANGLES, 0, points);
 }

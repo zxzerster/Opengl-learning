@@ -24,7 +24,7 @@
 GLuint CUBE_VAO = 0, CUBE_VBO = 0, CUBE_EBO = 0, WOOD_TEXTURE = 0, FACE_TEXTURE = 0;
 GLuint cube_program = 0;
 
-Cube cube;
+Cube cube0;
 
 const GLfloat cubeVertices[] = {
     -0.5f, -0.5f, -0.5f,
@@ -152,126 +152,64 @@ const GLuint cubeVertexIndicies[] = {
     0, 4, 5, 5, 1, 0  // Bottom face
 };
 
-void GLInit() {
-#if 0
-    ErrorString error;
+glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f, 0.0f, 0.0f),
+    glm::vec3( 2.0f, 5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3( 2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f, 3.0f, -7.5f),
+    glm::vec3( 1.3f, -2.0f, -2.5f),
+    glm::vec3( 1.5f, 2.0f, -2.5f),
+    glm::vec3( 1.5f, 0.2f, -1.5f),
+    glm::vec3(-1.3f, 1.0f, -1.5f)
+};
 
-// Vertex attributes
-    glGenVertexArrays(1, &CUBE_VAO);
-    glBindVertexArray(CUBE_VAO);
-    {
-        glGenBuffers(1, &CUBE_VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, CUBE_VBO);
-        {
-            glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void *)0);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-            glEnableVertexAttribArray(0);
-            glEnableVertexAttribArray(1);
-        }
-    }
-    glBindVertexArray(0);
-// Texture
-    glGenTextures(1, &WOOD_TEXTURE);
-    glBindTexture(GL_TEXTURE_2D, WOOD_TEXTURE);
-    {
-        int width, height, nChannels;
-        stbi_uc* cubeTexture = stbi_load("D:\\Dev\\Opengl-learning\\textures\\container.jpg", &width, &height, &nChannels, 0);
-        if (!cubeTexture) {
-            abort();
-        }
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, cubeTexture);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
 
-    glGenTextures(1, &FACE_TEXTURE);
-    glBindTexture(GL_TEXTURE_2D, FACE_TEXTURE);
-    {
-        int width, height, nChannels;
-        stbi_uc* faceTexture = stbi_load("D:\\Dev\\Opengl-learning\\textures\\awesomeface.png", &width, &height, &nChannels, 0);
-        if (!faceTexture) {
-            abort();
-        }
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, faceTexture);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
+static void Cube0Init() {
+    cube0.loadVertexAttribute(0, const_cast<GLfloat *>(cubeVertices), sizeof(cubeVertices), 3);
+    cube0.loadVertexAttribute(1, const_cast<GLfloat *>(colors), sizeof(colors), 3);
+    cube0.loadVertexAttribute(2, const_cast<GLfloat *>(texCoords), sizeof(texCoords), 2);
+    cube0.loadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.vert","C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.frag");
 
-// Shader program
-    cube_program = LoadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\Opengl\\Opengl-learning\\shader\\glsl\\cube.vert", "C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.frag", error);
-    if (cube_program == 0) {
-        std::cout << error << std::endl;
-        return;
-    }
-
-    glUseProgram(cube_program);
-
-// model, view, projection
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-    glUniformMatrix4fv(glGetUniformLocation(cube_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    glUniformMatrix4fv(glGetUniformLocation(cube_program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), (float)1440 / (float)900, 0.1f, 100.0f);
-    glUniformMatrix4fv(glGetUniformLocation(cube_program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-    glEnable(GL_DEPTH_TEST);
-
-//  Bind texture with sampler
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, WOOD_TEXTURE);
-    glUniform1i(glGetUniformLocation(cube_program, "wood"), 0);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, FACE_TEXTURE);
-    glUniform1i(glGetUniformLocation(cube_program, "face"), 1);
-
-    glBindVertexArray(CUBE_VAO);
-#endif
-    cube.loadVertexAttribute(0, const_cast<GLfloat *>(cubeVertices), sizeof(cubeVertices), 3);
-    cube.loadVertexAttribute(1, const_cast<GLfloat *>(colors), sizeof(colors), 3);
-    cube.loadVertexAttribute(2, const_cast<GLfloat *>(texCoords), sizeof(texCoords), 2);
-    cube.loadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.vert","C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.frag");
-
-    cube.loadTexture("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\container.jpg");
+    cube0.loadTexture("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\container.jpg");
     // cube.loadTexture("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\awesomeface.png");
 
-    cube.connectTexture(GL_TEXTURE0, "wood");
+    cube0.connectTexture(GL_TEXTURE0, "wood");
 
     glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
     model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-    cube.setUniform("model", model);
+    cube0.setUniform("model", model);
 
     glm::mat4 view = glm::mat4(1.0f);
-    // view = glm::scale(view, glm::vec3(0.5f, 0.5f, 0.5f));
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    cube.setUniform("view", view);
+    view = glm::translate(view, glm::vec3(-0.3125f, 0.3125f, -3.0f));
+    cube0.setUniform("view", view);
 
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective(glm::radians(45.0f), (float)1440 / (float)900, 0.1f, 100.0f);
-    cube.setUniform("projection", projection);
+    cube0.setUniform("projection", projection);
 
-    cube.enableDepthTest();
+    cube0.enableDepthTest();
+}
+
+void GLInit() {
+    Cube0Init();
 }
 
 void GLRendering() {
+    float step = 55.0f;
+    for (auto i = 0; i < 10; ++i) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, cubePositions[i]);
+        model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
+        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(step), glm::vec3(0.5f, 1.0f, 0.0f));
+        cube0.setUniform("model", model);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-    cube.setUniform("model", model);
+        cube0.Draw(sizeof(cubeVertices));
 
-    cube.Draw(sizeof(cubeVertices));
+        step += 30;
+    }
 }
 
 int main(int argc, char* argv[]) {
