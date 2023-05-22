@@ -24,7 +24,7 @@
 GLuint CUBE_VAO = 0, CUBE_VBO = 0, CUBE_EBO = 0, WOOD_TEXTURE = 0, FACE_TEXTURE = 0;
 GLuint cube_program = 0;
 
-Cube cube0;
+Cube cube0, cube1;
 
 const GLfloat cubeVertices[] = {
     -0.5f, -0.5f, -0.5f,
@@ -153,8 +153,9 @@ const GLuint cubeVertexIndicies[] = {
 };
 
 glm::vec3 cubePositions[] = {
-    glm::vec3( 0.0f, 0.0f, 0.0f),
-    glm::vec3( 2.0f, 5.0f, -15.0f),
+    glm::vec3( 0.0f, 0.0f, -1.2f),
+#if 0
+    glm::vec3( 2.0f, 5.0f, -80.0f),
     glm::vec3(-1.5f, -2.2f, -2.5f),
     glm::vec3(-3.8f, -2.0f, -12.3f),
     glm::vec3( 2.4f, -0.4f, -3.5f),
@@ -163,6 +164,7 @@ glm::vec3 cubePositions[] = {
     glm::vec3( 1.5f, 2.0f, -2.5f),
     glm::vec3( 1.5f, 0.2f, -1.5f),
     glm::vec3(-1.3f, 1.0f, -1.5f)
+#endif
 };
 
 
@@ -178,12 +180,12 @@ static void Cube0Init() {
     cube0.connectTexture(GL_TEXTURE0, "wood");
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
+    // model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     cube0.setUniform("model", model);
 
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(-0.3125f, 0.3125f, -3.0f));
+    // view = glm::translate(view, glm::vec3(-0.3125f, 0.3125f, -3.0f));
     cube0.setUniform("view", view);
 
     glm::mat4 projection = glm::mat4(1.0f);
@@ -191,6 +193,29 @@ static void Cube0Init() {
     cube0.setUniform("projection", projection);
 
     cube0.enableDepthTest();
+
+    cube1.loadVertexAttribute(0, const_cast<GLfloat *>(cubeVertices), sizeof(cubeVertices), 3);
+    cube1.loadVertexAttribute(1, const_cast<GLfloat *>(colors), sizeof(colors), 3);
+    cube1.loadVertexAttribute(2, const_cast<GLfloat *>(texCoords), sizeof(texCoords), 2);
+    cube1.loadShaders("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.vert","C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\shader\\glsl\\cube.frag");
+
+    cube1.loadTexture("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\container.jpg");
+    // cube.loadTexture("C:\\Users\\Zxzerster\\Documents\\Dev\\Opengl\\Opengl-learning\\textures\\awesomeface.png");
+
+    cube1.connectTexture(GL_TEXTURE0, "wood");
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-7.0f, 1.0f, -13.0f));
+    // model = glm::rotate(model, glm::radians(-15.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    cube1.setUniform("model", model);
+
+    view = glm::mat4(1.0f);
+    // view = glm::translate(view, glm::vec3(-0.3125f, 0.3125f, -3.0f));
+    cube1.setUniform("view", view);
+
+    projection = glm::mat4(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), (float)1440 / (float)900, 0.1f, 100.0f);
+    cube1.setUniform("projection", projection);
 }
 
 void GLInit() {
@@ -198,18 +223,11 @@ void GLInit() {
 }
 
 void GLRendering() {
-    float step = 55.0f;
-    for (auto i = 0; i < 10; ++i) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, cubePositions[i]);
-        model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
-        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(step), glm::vec3(0.5f, 1.0f, 0.0f));
-        cube0.setUniform("model", model);
+    cube0.useProgram();
+    cube0.Draw(sizeof(cubeVertices) / (sizeof(GLfloat) * 3));
 
-        cube0.Draw(sizeof(cubeVertices));
-
-        step += 30;
-    }
+    cube1.useProgram();
+    cube1.Draw(sizeof(cubeVertices) / (sizeof(GLfloat) * 3));
 }
 
 int main(int argc, char* argv[]) {

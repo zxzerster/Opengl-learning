@@ -46,7 +46,7 @@ void Cube::loadShaders(const std::string& vertexPath, const std::string& fragmen
         std::cout << error << std::endl;
         return;
     }
-
+    std::cout << "shader program: " << Shader_Program << std::endl;
     glUseProgram(Shader_Program);
 }
 
@@ -65,6 +65,10 @@ void Cube::loadTexture(const std::string& texturePath) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
+}
+
+void Cube::useProgram() {
+    glUseProgram(Shader_Program);
 }
 
 void Cube::connectTexture(GLenum tex, std::string uniform) {

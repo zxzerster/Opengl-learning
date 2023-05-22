@@ -24,9 +24,11 @@ public:
     void loadVertexAttribute(unsigned int location, GLfloat* vertices, unsigned int size, unsigned int components);
     void loadShaders(const std::string& vertexPath, const std::string& fragmentPath);
     void loadTexture(const std::string& texturePath);
+    void useProgram();
     void connectTexture(GLenum tex, std::string uniform);
     template<typename T>
     void setUniform(const std::string& name, T value) {
+        std::cout << "set uniform shader: " << Shader_Program << std::endl;
         GLuint loc = glGetUniformLocation(Shader_Program, name.c_str());
         if (loc == -1) {
             std::cout << "Uniform " << name << " not found" << std::endl;
